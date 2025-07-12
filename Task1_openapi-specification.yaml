@@ -1,0 +1,214 @@
+# OpenAPI Specification
+# Author_contact:
+#   name: Sharon Isabela
+#  email: wanzalaisabella@gmail.com
+
+openapi: 3.0.3
+info:
+  title: Test Store API
+  description: |
+    This API allows store owners to manage their inventory by adding new items.
+    I have designed this specification based on the provided endpoint requirements,
+    with some improvements to handle edge cases I noticed in the original spec.
+  version: 1.0.0
+servers:
+  - url: https://teststore.com/v1
+    description: Production server
+
+paths:
+  /{storeID}/postitem:
+    post:
+      summary: Add a new item to the store
+      description: |
+        Creates a new item in the specified store. I noticed the original spec had some
+        inconsistencies with data types and response formats, so I've standardized them here.
+        The endpoint handles various item types and includes proper validation.
+      parameters:
+        - name: storeID
+          in: path
+          required: true
+          description: Unique identifier for the store (usually provided during store registration)
+          schema:
+            type: string
+            example: 'store123'
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemRequest'
+            example:
+              requestId: 'req_2024_001'
+              item: 'Denim jeans'
+              size: '32'
+              description: 'A pair of denim jeans size 32 for men'
+              tags: ['trendy', 'male', 'blue', '32', 'denim']
+              onOffer: true
+              price: 1000
+              discount: 0
+      responses:
+        '201':
+          description: Item created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+              example:
+                requestId: 'dfdfa124ae'
+                itemCode: '1234sdsfrer'
+                description: 'item created successfully'
+        '204':
+          description: Item deleted successfully (no content)
+        '400':
+          description: Bad request - malformed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                requestId: 'dfdfa124ae'
+                errorCode: '04XY'
+                description: 'missing field xyz'
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                requestId: 'dfdfa124ae'
+                errorCode: '44XY'
+                description: 'resource not found'
+        '405':
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                requestId: 'dfdfa124ae'
+                errorCode: '45XY'
+                description: 'method not allowed'
+        '503':
+          description: Service unavailable - duplicate request ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DuplicateErrorResponse'
+              example:
+                requestId: 'fdfa132as'
+                errorCode: '53QW'
+                errorDescription: 'duplicate requestID'
+
+components:
+  schemas:
+    ItemRequest:
+      type: object
+      required:
+        - requestId
+        - item
+        - size
+        - onOffer
+        - price
+        - discount
+      properties:
+        requestId:
+          type: string
+          description: Uniquely identifies each API request
+          example: 'dfdfa124ae'
+        item:
+          type: string
+          description: Item being added to the store
+          example: 'Denim jeans'
+        size:
+          type: string
+          description: Size or description of size (e.g., large, 32, XL)
+          example: '32'
+        description:
+          type: string
+          description: Elaboration on item added
+          example: 'A pair of denim jeans size 32 for men'
+        tags:
+          type: array
+          items:
+            oneOf:
+              - type: string
+              - type: number
+          description: Search terms to be associated with item
+          example: ['trendy', 'male', 'blue', '32', 'denim']
+        onOffer:
+          type: boolean
+          description: True if a discount exists and false otherwise
+          example: true
+        price:
+          type: number
+          format: float
+          description: Price of the item
+          example: 1000
+        discount:
+          type: number
+          format: float
+          description: Discount amount or percentage
+          example: 0
+
+    SuccessResponse:
+      type: object
+      required:
+        - requestId
+        - itemCode
+        - description
+      properties:
+        requestId:
+          type: string
+          description: Uniquely identifies each API request
+          example: 'dfdfa124ae'
+        itemCode:
+          type: string
+          description: Alphanumeric string representing the item created. Can be used to retrieve the object
+          example: '1234sdsfrer'
+        description:
+          type: string
+          description: An explanation of operation success
+          example: 'item created successfully'
+
+    ErrorResponse:
+      type: object
+      required:
+        - requestId
+        - errorCode
+        - description
+      properties:
+        requestId:
+          type: string
+          description: Uniquely identifies each API request
+          example: 'dfdfa124ae'
+        errorCode:
+          type: string
+          description: A code that is mapped to an error in the backend
+          example: '04XY'
+        description:
+          type: string
+          description: An explanation of error encountered
+          example: 'missing field xyz'
+
+    DuplicateErrorResponse:
+      type: object
+      required:
+        - requestId
+        - errorCode
+        - errorDescription
+      properties:
+        requestId:
+          type: string
+          description: Uniquely identifies each API request
+          example: 'fdfa132as'
+        errorCode:
+          type: string
+          description: A code that is mapped to an error in the backend
+          example: '53QW'
+        errorDescription:
+          type: string
+          description: An explanation of error encountered
+          example: 'duplicate requestID'
