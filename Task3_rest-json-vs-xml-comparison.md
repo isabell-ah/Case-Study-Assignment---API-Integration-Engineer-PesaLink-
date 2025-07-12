@@ -2,7 +2,7 @@
 
 ## What I have Learned About These Two Approaches
 
-Having interacted with both REST/JSON and REST/XML , I have come to appreciate that while both follow REST principles, the choice of data format can significantly impact your development experience and application performance. Let me break down what I've observed.
+Having interacted with both REST/JSON and REST/XML , I have come to appreciate that while both follow REST principles, the choice of data format can significantly impact your development experience and application performance. Let me break down the key differences.
 
 ## Key Differences
 
